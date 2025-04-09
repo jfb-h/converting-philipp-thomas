@@ -1,0 +1,89 @@
+---
+title: "Übung 1"
+author: "Jakob Hoffmann"
+format: html
+editor: visual
+---
+
+## Aufgabe 1
+
+a.  Öffnen Sie unsere SPSS-Datei. Erstellen Sie je eine Häufigkeitstabelle aus den Variablen V2_2 (Freude an wirtschafts/sozial-/geisteswissenschaftlichen Schulfächern) und V7_2 (Vertiefungsrichtung Humangeographie). Stellen Sie diese beiden Variablen zudem in einer Kreuztabelle gegenüber.
+
+b.  Visualisieren Sie die Informationen dieser beiden Variablen mittels Diagrammen in SPSS. Verwenden Sie dazu Kreisdiagramme und Balkendiagramme sowie gruppierte Balken und gestapelte Balken für die Darstellung beider Informationen in einem Diagramm.
+
+------------------------------------------------------------------------
+
+### Lösung
+
+**Schritt 0**: Bibliotheken laden:
+
+```{r}
+library(haven)
+library(tidyverse)
+```
+
+**Erklärung**: Die Bibliothek `haven` enthält Funktionen um Daten aus unterschiedlichsten Formaten in R zu importieren. Um eine SPSS-Datei zu laden, benutzen wir die Funktion `read_sav()`. Die Bibliothek `tidyverse` vereint unterschiedlichste Funktionalität zum Laden, Bearbeiten und Visualisieren von Daten.
+
+Das `tidyverse` ist sehr gut dokumentiert und verfügt über ein eigenes Buch, welches online verfügbar ist: <https://www.tidyverse.org> .
+
+**Schritt 1**: Daten importieren:
+
+```{r}
+data <- read_sav("data/Gesamtdaten 2024_bereinigt 147.sav")
+```
+
+**Erklärung**: Der befehl `read_sav()` produziert einen 'data frame', die Standarddatenstruktur für tabellarische Daten in `R` . Der data frame ist das Äquivalent zum Spreadsheet in Excel. In einem Quarto Notebook gibt das Aufrufen eines data frame eine tabellarische Voransicht der Daten. Alternativ kann der data frame in RStudio durch klicken auf das entsprechende Objekt (in unserem Fall `data`) im Register `Environment` (rechts oben) in einem separaten Viewer betrachtet werden.
+
+Ein data frame ist schlussendlich eine Liste von Spalten, mit der Einschränkung, dass alle Spalten die gleiche Länge haben müssen. Um auf eine Variable (eine Spalte) in einem data frame zuzugreifen, wird der Name des data frame durch ein `$` mit dem Namen der gewünschten Variable verbunden:
+
+```{r}
+data$V2_2
+```
+
+Spalten haben den Datentyp `vector`, der eine Sammlung von Werten mit gleichem Basisdatentyp (Zahl, Text, etc.) repräsentiert. In diesem Fall enthalten die Variablen aufgrund des Imports aus SPSS zusätzlich Labels für die durch SPSS eingesetzten Codes.
+
+In `R` wird für kategorische Variablen mit einer geringen Zahl an möglichen Ausprägungen i.d.R. mit dem Datentyp `factor` eine Spezialversion des `vector` eingesetzt, zu dem wir eine Variable mit der Funktion `as_factor()` konvertieren können:
+
+```{r}
+q <- as_factor(data$V2_2)
+```
+
+**Schritt 2**: Häufigkeitstabellen erstellen:
+
+```{r}
+table(q)
+```
+
+```{r}
+table(as_factor(data$V7_2))
+```
+
+**Erklärung**: Der Befehl `table` zählt die Häufigkeiten diskreter Merkmale in einem Vektor aus. Wir haben hier die Konversion zu einem `factor` und das Erstellen der Tabelle in einem Schritt durchgeführt und nicht wie zuvor durch Erstellen einer Variable (`q`) für das Zwischenergebnis.
+
+**Schritt 3**: Kreuztabelle erstellen:
+
+```{r}
+table(
+  as_factor(data$V2_2), 
+  as_factor(data$V7_2)
+)
+```
+
+**Erklärung**: Wenn dem Befehl `table()` mehrere Vektoren als Input gegeben werden, erstellt der Befehl eine Kreuztabelle. Wir können die Tabellen für die weitere Verwendung in Variablen speichern:
+
+```{r}
+tbl_V2 <- table(as_factor(data$V2_2))
+tbl_V2_V7 <- table(as_factor(data$V7_2), as_factor(data$V2_2))
+```
+
+**Schritt 4**: Abbildungen erstellen:
+
+```{r}
+pie(tbl_V2)
+```
+
+```{r}
+barplot(tbl_V2_V7)
+```
+
+**Erklärung**: `R` enthält umfassende Funktionalität zum erstellen von Plots. Darüber hinaus gibt es beliebte Bibliotheken, wie z.B. `ggplot2`, die eine Vielzahl unterschiedlicher, komplexer Visualisierungen erlauben.
