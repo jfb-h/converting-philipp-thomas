@@ -154,10 +154,32 @@ plot <- plot_data_summaries(summaries)
 
 Here, `read_data_from_file` etc. represent functions that conduct certain steps while hiding the details, which can be helpful for organizing complex analytical pipelines.
 
-## Exercises
+# Data types
+
+`R` represents different pieces of data with different *data types*.
+
+-   A number is `numeric` or `integer`
+
+-   Text is `character`
+
+-   A true or false value is `logical`
+
+-   A list of numbers (or text or logical) is a `vector`
+
+-   A list of things representing a categorical variable is a `factor`
+
+-   A heterogeneous list of things is a `list`
+
+-   A table is a `data.frame` (or `tibble`)
+
+# Getting Help
+
+`R` has built in help, which you can access by preprending a question mark `?` before the command that you want to know more about or by going to the help register in RStudio.
+
+Many packages have excellent online documentation, such as the packages from the [tidyverse](https://www.tidyverse.org).
 
 ::: {.callout-note style="color: navyblue;"}
-### Getting Help: ChatGPT & Co.
+### ChatGPT & Co.
 
 Programming frequently involves solving new problems for which you don't know the solution yet. Luckily, most problems have been solved before by other people. Accordingly, many solutions to frequent problems can be found in a variety of places online.
 
