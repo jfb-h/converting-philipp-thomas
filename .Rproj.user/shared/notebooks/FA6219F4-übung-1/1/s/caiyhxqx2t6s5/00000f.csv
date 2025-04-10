@@ -1,2 +1,0 @@
-"0","tbl_V2 <- table(as_factor(data$V2_2))"
-"0","tbl_V2_V7 <- table(as_factor(data$V7_2), as_factor(data$V2_2))"
