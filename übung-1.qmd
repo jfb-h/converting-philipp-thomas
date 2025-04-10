@@ -24,7 +24,7 @@ library(tidyverse)
 
 **Erklärung**: Die Bibliothek `haven` enthält Funktionen um Daten aus unterschiedlichsten Formaten in R zu importieren. Um eine SPSS-Datei zu laden, benutzen wir die Funktion `read_sav()`. Die Bibliothek `tidyverse` vereint unterschiedlichste Funktionalität zum Laden, Bearbeiten und Visualisieren von Daten.
 
-Das `tidyverse` ist sehr gut dokumentiert und verfügt über ein eigenes Buch, welches online verfügbar ist: <https://www.tidyverse.org> .
+Das `tidyverse` ist sehr gut dokumentiert und verfügt über ein eigenes Buch, welches online verfügbar ist: <https://www.tidyverse.org>.
 
 **Schritt 1**: Daten importieren:
 
@@ -87,4 +87,3 @@ barplot(tbl_V2_V7)
 ```
 
 **Erklärung**: `R` enthält umfassende Funktionalität zum erstellen von Plots. Darüber hinaus gibt es beliebte Bibliotheken, wie z.B. `ggplot2`, die eine Vielzahl unterschiedlicher, komplexer Visualisierungen erlauben.
-

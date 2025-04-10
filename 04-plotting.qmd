@@ -52,8 +52,7 @@ Use the jointly created code and add to it to solve the following tasks:
 #| code-summary: Solution
 #| eval: false
 
-ggplot(gapminder, aes(x=gdpPercap, y=lifeExp)) +   
-  geom_point(color="blue")
+
 ```
 
 2.  **Make the points transparent, so that it is easier to see overlapping data.**
@@ -63,8 +62,7 @@ ggplot(gapminder, aes(x=gdpPercap, y=lifeExp)) +
 #| code-summary: Solution
 #| eval: false
 
-ggplot(gapminder, aes(x=gdpPercap, y=lifeExp)) +   
-  geom_point(color="blue", alpha=0.2)
+
 ```
 
 3.  **Specify a log scale for GDP.**
@@ -74,9 +72,7 @@ ggplot(gapminder, aes(x=gdpPercap, y=lifeExp)) +
 #| code-summary: Solution
 #| eval: false
 
-ggplot(gapminder, aes(x=gdpPercap, y=lifeExp)) +   
-  geom_point(color="blue", alpha=0.2) +   
-  scale_x_log10()
+
 ```
 
 4.  **Color the points by continent.**
@@ -86,9 +82,7 @@ ggplot(gapminder, aes(x=gdpPercap, y=lifeExp)) +
 #| code-summary: Solution
 #| eval: false
 
-ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +   
-  geom_point() + 
-  scale_x_log10()
+
 ```
 
 5.  **Add more readable labels to the plot.**
@@ -98,10 +92,7 @@ ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +
 #| code-summary: Solution
 #| eval: false
 
-ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +   
-  geom_point() + 
-  scale_x_log10() +   
-  labs(x="GDP per capita (log scale)", y="Life expectancy (years)")
+
 ```
 
 6.  **Add a title and a subtitle to the plot.**
@@ -111,14 +102,7 @@ ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +
 #| code-summary: Solution
 #| eval: false
 
-ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +   
-  geom_point() +
-  scale_x_log10() +
-  labs(     
-    x="GDP per capita (log scale)",      
-    y="Life expectancy (years)",     
-    title="GDP vs. life expectancy",     
-    subtitle="Data for ~130 countries over a period of 60 years")
+
 ```
 
 7.  **Apply a different theme to your plot.**
@@ -128,15 +112,7 @@ ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +
 #| code-summary: Solution
 #| eval: false
 
-ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +   
-  geom_point() + 
-  scale_x_log10() +   
-  theme_minimal() + 
-  labs(
-    x="GDP per capita (log scale)",      
-    y="Life expectancy (years)",     
-    title="GDP vs. life expectancy",     
-    subtitle="Data for ~130 countries over a period of 60 years")  
+
 ```
 
 8.  **Move the legend to the bottom of the plot.**
@@ -146,16 +122,7 @@ ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +
 #| code-summary: Solution
 #| eval: false
 
-ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +   
-  geom_point() + 
-  scale_x_log10() +   
-  theme_minimal() + 
-  theme(legend.position="bottom") +
-  labs(     
-    x="GDP per capita (log scale)",      
-    y="Life expectancy (years)",     
-    title="GDP vs. life expectancy",     
-    subtitle="Data for ~130 countries over a period of 60 years")  
+ 
 ```
 
 9.  **Add a regression line to the plot.**
@@ -166,18 +133,6 @@ ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +
 #| eval: false
 
 
-ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +   
-  geom_point() + 
-  geom_smooth(method="lm", color="red") +
-  scale_x_log10() +   
-  theme_minimal() + 
-  theme(legend.position="bottom") +
-  labs(     
-    x="GDP per capita (log scale)",      
-    y="Life expectancy (years)",     
-    title="GDP vs. life expectancy",     
-    subtitle="Data for ~130 countries over a period of 60 years")  
-
 ```
 
 9.  **Save the plot as a `.png` file.**
@@ -187,20 +142,6 @@ ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +
 #| code-summary: Solution
 #| eval: false
 
-p1 <- ggplot(gapminder, aes(x=gdpPercap, y=lifeExp, color=continent)) +   
-  geom_point() + 
-  geom_smooth(method="lm", color="red") +
-  scale_x_log10() +   
-  theme_minimal() + 
-  theme(legend.position="bottom") +
-  labs(     
-    x="GDP per capita (log scale)",      
-    y="Life expectancy (years)",     
-    title="GDP vs. life expectancy",     
-    subtitle="Data for ~130 countries over a period of 60 years")  
-
-
-ggsave("gdp-lifeexp.png", p1, width=30, height=20, units = "cm")
 
 ```
 
@@ -211,13 +152,5 @@ ggsave("gdp-lifeexp.png", p1, width=30, height=20, units = "cm")
 #| code-summary: Solution
 #| eval: false
 
-dat <- gapminder |> 
-    group_by(year, continent) |>
-    summarize(pop=sum(pop))
 
-ggplot(dat, aes(x=year, y=pop, color=continent)) +
-    geom_line() +
-    theme_minimal() +
-    theme(legend.position="bottom") + 
-    labs(x="", y="Population", title="Population growth by continent")
 ```
