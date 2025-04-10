@@ -1,0 +1,611 @@
+---
+title: "Übung 2"
+author: "Daniel Wagner"
+format: html
+editor: visual
+---
+
+## Aufgabe 1
+
+a.  Öffnen Sie unsere SPSS-Datei. Bestimmen Sie nun die wesentlichen Lage- und Streuungsparameter für die Variable V15 (Fahrtzeit zwischen Wohnort und Uni in Minuten). Dazu gehören:
+
+    -   Mittelwert
+
+    -   Median
+
+    -   Modus
+
+    -   Varianz
+
+    -   Standardabweichung
+
+    -   Schiefe
+
+    -   Spannweite
+
+    -   Minimal- und Maximalwert
+
+    -   Perzentile P25 und P75
+
+b.  Wie können die Ergebnisse interpretiert werden?
+
+c.  Welche Aussagen lassen sich bei Betrachtung der einzelnen Parameter über die Fahrtzeit der befragten Studierenden treffen?
+
+------------------------------------------------------------------------
+
+### Lösung
+
+**Schritt 0**: Bibliotheken laden:
+
+```{r}
+library(haven)
+library(e1071)
+library(tidyverse)
+library(modeest) 
+library(lubridate) 
+```
+
+**Erklärung**: Die Bibliothek `haven` enthält Funktionen um Daten aus unterschiedlichsten Formaten in R zu importieren. Um eine SPSS-Datei zu laden, benutzen wir die Funktion `read_sav()`.
+
+Die Bibliothek `e1071`ist einenthält funktionen für Statistik und maschinelles Lernen, entwickelt von der Abteilung für Statistik der TU Wien (daher der Name „e1071“ – das ist die Nummer ihrer Abteilung).
+
+Die Bibliothek `tidyverse` vereint unterschiedlichste Funktionalität zum Laden, Bearbeiten und Visualisieren von Daten. Das `tidyverse` ist sehr gut dokumentiert und verfügt über ein eigenes Buch, welches online verfügbar ist: <https://www.tidyverse.org> .
+
+Die Bibliothek `lubridate` vereinfacht den Umgang mit Datums- und Zeitangaben in R. Sie enthält Funktionen zur einfachen Extraktion, Umwandlung und Berechnung von Datumswerten.
+
+Die Bibliothek `modeest` stellt Funktionen zur Schätzung des Modus (häufigster Wert) einer Verteilung bereit – sowohl für diskrete als auch für stetige Variablen.
+
+**Schritt 1**: Daten importieren:
+
+```{r}
+data <- read_sav("data/Gesamtdaten 2024_bereinigt 147.sav")
+```
+
+**Erklärung**: Der befehl `read_sav()` produziert einen 'data frame', die Standarddatenstruktur für tabellarische Daten in `R` . Der data frame ist das Äquivalent zum Spreadsheet in Excel. In einem Quarto Notebook gibt das Aufrufen eines data frame eine tabellarische Voransicht der Daten. Alternativ kann der data frame in RStudio durch klicken auf das entsprechende Objekt (in unserem Fall `data`) im Register `Environment` (rechts oben) in einem separaten Viewer betrachtet werden.
+
+Ein data frame ist schlussendlich eine Liste von Spalten, mit der Einschränkung, dass alle Spalten die gleiche Länge haben müssen. Um auf eine Variable (eine Spalte) in einem data frame zuzugreifen, wird der Name des data frame durch ein `$` mit dem Namen der gewünschten Variable verbunden:
+
+```{r}
+data$V15
+```
+
+Spalten haben den Datentyp `vector`, der eine Sammlung von Werten mit gleichem Basisdatentyp (Zahl, Text, etc.) repräsentiert. In diesem Fall enthalten die Variablen aufgrund des Imports aus SPSS zusätzlich Labels für die durch SPSS eingesetzten Codes.
+
+```{r}
+v15 <- data$V15
+```
+
+Die Informationen in V15 werden hier in eine neue Variable v15 gespeichert.
+
+**Schritt 2**: Berechnen der wesentlichen Lage- und Streuungsparameter:
+
+```{r}
+
+# Mittelwert
+mean_v15 <- mean(v15, na.rm = TRUE)
+
+# Median
+median_v15 <- median(v15, na.rm = TRUE)
+
+# Modus (häufigster Wert)
+modus_v15 <- as.numeric(names(sort(table(v15), decreasing = TRUE)[1]))
+
+# Varianz
+varianz_v15 <- var(v15, na.rm = TRUE)
+
+# Standardabweichung
+sd_v15 <- sd(v15, na.rm = TRUE)
+
+# Schiefe
+schiefe_v15 <- skewness(v15, na.rm = TRUE)
+
+# Spannweite
+spannweite_v15 <- range(v15, na.rm = TRUE)
+min_v15 <- spannweite_v15[1]
+max_v15 <- spannweite_v15[2]
+
+# Perzentile P25 und P75
+perzentile_v15 <- quantile(v15, probs = c(0.25, 0.75), na.rm = TRUE)
+```
+
+**Erklärung**:
+
+**Mittelwert**: Der Befehl `mean()` berechnet den arithmetischen Mittelwert eines Vektors. Mit dem Argument `na.rm = TRUE` werden fehlende Werte (NA) ignoriert. Das Ergebnis wird in der Variablen `mean_v15` gespeichert.
+
+**Median**: `median()` berechnet den Zentralwert (Median) der Variable `v15`. Auch hier werden fehlende Werte durch `na.rm = TRUE` ausgeschlossen. Das Ergebnis ist der Wert in der Mitte der Verteilung und wird in `median_v15` gespeichert.
+
+**Modus**: Der Befehl `table(v15)` erzeugt eine Häufigkeitstabelle der Werte im Vektor `v15`, also wie oft jeder Wert vorkommt.\
+Die Funktion `sort(..., decreasing = TRUE)` sortiert diese Tabelle absteigend nach Häufigkeit, sodass der am häufigsten vorkommende Wert ganz oben steht. Mit `names(...)[1]` wird der Name (also der konkrete Wert) des häufigsten Eintrags extrahiert.\
+Da `names()` ein Zeichenvektor liefert, wird er mit `as.numeric()` in eine Zahl umgewandelt. So erhält man den Modus – denjenigen Wert, der in `v15` am häufigsten vorkommt – und speichert ihn in der Variable `modus_v15`.
+
+**Varianz**: `var()` berechnet die Varianz, also das durchschnittliche Quadrat der Abweichungen vom Mittelwert. Auch hier werden NAs entfernt.
+
+**Standardabweichung**: `sd()` gibt die Standardabweichung an, also die mittlere Abweichung vom Mittelwert. Sie ist die Wurzel der Varianz und anschaulicher interpretierbar. Auch hier werden fehlende Werte ignoriert.
+
+**Schiefe**: Die Funktion `skewness()` aus dem Paket `e1071` misst die Schiefe (Asymmetrie) der Verteilung. Ein Wert nahe 0 bedeutet symmetrisch, ein positiver Wert bedeutet rechtsschiefe Verteilung. Mit `na.rm = TRUE` werden fehlende Werte ausgeschlossen.
+
+**Spannweite**: `range()` gibt den kleinsten und größten Wert in einem Vektor zurück (als Zahlenpaar). Die Funktion gibt also Minimum und Maximum aus, wobei `na.rm = TRUE` fehlende Werte entfernt. Mit `[1]` und `[2]` werden Minimum und Maximum separat in `min_v15` und `max_v15` gespeichert.
+
+**Perzentile P25 und P75**: `quantile()` berechnet Perzentile der Verteilung – also Werte, unter denen ein bestimmter Prozentsatz der Daten liegt. Hier werden das 25. (P25) und 75. (P75) Perzentil berechnet, also die untere und obere Quartilsgrenze. Das Ergebnis ist ein numerischer Vektor mit den beiden Grenzwerten, die den Interquartilsbereich (IQR) umschließen. Fehlende Werte werden auch hier ignoriert.
+
+**Schritt 3**: Darstellung der wesentlichen Lage- und Streuungsparameter:
+
+```{r}
+cat("Mittelwert:", mean_v15, "\n")
+cat("Median:", median_v15, "\n")
+cat("Modus:", modus_v15, "\n")
+cat("Varianz:", varianz_v15, "\n")
+cat("Standardabweichung:", sd_v15, "\n")
+cat("Schiefe:", schiefe_v15, "\n")
+cat("Minimum:", min_v15, "\n")
+cat("Maximum:", max_v15, "\n")
+cat("Spannweite:", max_v15 - min_v15, "\n")
+cat("Perzentil 25 (P25):", perzentile_v15[1], "\n")
+cat("Perzentil 75 (P75):", perzentile_v15[2], "\n")
+
+```
+
+**Erklärung**:
+
+Der Befehl `cat()` gibt Text und Variablen gemeinsam in der Konsole aus. Die gespeicherten Variablen (wie zum Beispiel `mean_v15`) werden zusammen mit passender Beschriftung (alles zwischen "") angezeigt. Das `"\n"` sorgt für einen Zeilenumbruch nach der Ausgabe.
+
+**Schritt 4**: Ergebnisse interpretiert:
+
+Der Mittelwert liegt bei knapp 41 Minuten.\
+Das ist ziemlich hoch – aber wie wir gleich sehen, liegt das u. a. an Ausreißern.
+
+Die Hälfte aller Personen braucht weniger als 35 Minuten, die andere Hälfte mehr.\
+Da der Median \< Mittelwert, ist das ein typisches Zeichen für eine rechtsschiefe Verteilung → ein paar Leute haben sehr hohe Werte (z. B. bis 150 Min), die den Mittelwert nach oben ziehen.
+
+Der häufigste Wert ist 15 Minuten – viele Personen brauchen also relativ wenig Zeit zur Uni. Das bestätigt, dass es eine große Gruppe mit kurzer Fahrtzeit gibt.
+
+Diese hohen Streuungswerte zeigen, dass die Fahrtzeiten sehr unterschiedlich sind – von 5 Minuten bis 150. Die Standardabweichung von fast 28 Minuten ist im Verhältnis zum Mittelwert (41) ziemlich hoch → spricht für eine weite Streuung der Werte.
+
+Das ist eine starke positive Schiefe → Die Verteilung ist rechtsschief.\
+Das heißt: Es gibt viele kleine bis mittlere Werte, aber auch ein paar große Ausreißer nach oben (z. B. 90, 120, 150 Minuten).
+
+Die Fahrtzeiten liegen zwischen 5 und 150 Minuten – also große Unterschiede.\
+150 Minuten zur Uni ist sehr viel und wirkt wie ein Ausreißer.
+
+Die mittleren 50 % der Personen brauchen zwischen 21.5 und 50 Minuten zur Uni.\
+Das zeigt: Für viele ist die Fahrzeit unter 1 h, aber einige wenige über 2 h.
+
+Der Durchschnitt wird durch lange Fahrtzeiten verzerrt, aber die Mehrheit hat kürzere Anfahrtswege.
+
+## Aufgabe 2
+
+Erstellen Sie ein Histogramm für die Variable V15 (Fahrtzeit zwischen Wohnort und Uni in Minuten). Stellen Sie die Klassenbreite auf einen sinnvollen Wert ein und begründen Sie Ihre Entscheidung für die Wahl der Klassenbreite.
+
+### Lösung
+
+**Schritt 1**: Histrogramm erstellen:
+
+```{r}
+hist(v15, 
+     breaks = 10,      # Anzahl der Klassen (kann angepasst werden)
+     col = "grey", 
+     main = "Histogramm der Fahrtzeit (V15)", 
+     xlab = "Fahrtzeit (Minuten)", 
+     ylab = "Häufigkeit")
+
+```
+
+**Erklärung**: Der Befehl `hist()` erstellt ein Histogramm für den Vektor `v15`, der die Fahrtzeiten zwischen dem Wohnort und der Universität in Minuten enthält. Dabei haben wir die Anzahl der Klassen mit der Option `breaks = 10` festgelegt. Dies bedeutet, dass der Wertebereich der Fahrtzeiten in 10 gleich große Intervalle (Klassen) unterteilt wird. Wir haben die Anzahl der Klassen direkt im `hist()`-Befehl angegeben, ohne eine separate Variable für die Berechnung der Klassen zu verwenden. Die Balken des Histogramms sind lightblue eingefärbt, und es wurden Achsenbeschriftungen sowie ein Titel hinzugefügt, um das Histogramm klar zu kennzeichnen.
+
+-   Der Befehl `main` fügt den Titel "Histogramm der Fahrtzeit (V15)" hinzu.
+
+-   Der Befehl `xlab` setzt die Bezeichnung der x-Achse auf "Fahrtzeit (Minuten)".
+
+-   Der Befehl `ylab` setzt die Bezeichnung der y-Achse auf "Häufigkeit".
+
+So wird die Verteilung der Fahrtzeiten der Studierenden grafisch dargestellt, wobei jeder Balken die Häufigkeit der Studierenden in einem bestimmten Zeitintervall zeigt.
+
+## Aufgabe 3
+
+Wiederholen Sie Aufgabe 1 und 2 mit mindestens zwei weiteren metrisch skalierten Variablen Ihrer Wahl.
+
+### Lösung
+
+**Schritt 1**: Auswählen von 2 Metrischen Variablen
+
+```{r}
+v4_1 <- data$V4_1
+v4_2 <- data$V4_2
+```
+
+**Erklärung**: Die beiden Variablen V4_1 & V4_2 in der spss Datei werden in den Variablen v4_1 & v4_2 gespeichert.
+
+**Schritt 2**: Berechnen der wesentlichen Lage- und Streuungsparameter & Histrogramm für V4_1
+
+```{r}
+
+# Mittelwert
+mean_v4_1 <- mean(v4_1, na.rm = TRUE)
+
+# Median
+median_v4_1 <- median(v4_1, na.rm = TRUE)
+
+# Modus (häufigster Wert)
+modus_v4_1 <- as.numeric(names(sort(table(v4_1), decreasing = TRUE)[1]))
+
+# Varianz
+varianz_v4_1 <- var(v4_1, na.rm = TRUE)
+
+# Standardabweichung
+sd_v4_1 <- sd(v4_1, na.rm = TRUE)
+
+# Schiefe
+schiefe_v4_1 <- skewness(v4_1, na.rm = TRUE)
+
+# Spannweite
+spannweite_v4_1 <- range(v4_1, na.rm = TRUE)
+min_v4_1 <- spannweite_v4_1[1]
+max_v4_1 <- spannweite_v4_1[2]
+
+# Perzentile P25 und P75
+perzentile_v4_1 <- quantile(v4_1, probs = c(0.25, 0.75), na.rm = TRUE)
+```
+
+**Erklärung**: Identisch zu Aufgabe 1 Schritt 2
+
+```{r}
+cat("Mittelwert:", mean_v4_1, "\n")
+cat("Median:", median_v4_1, "\n")
+cat("Modus:", modus_v4_1, "\n")
+cat("Varianz:", varianz_v4_1, "\n")
+cat("Standardabweichung:", sd_v4_1, "\n")
+cat("Schiefe:", schiefe_v4_1, "\n")
+cat("Minimum:", min_v4_1, "\n")
+cat("Maximum:", max_v4_1, "\n")
+cat("Spannweite:", max_v4_1 - min_v4_1, "\n")
+cat("Perzentil 25 (P25):", perzentile_v4_1[1], "\n")
+cat("Perzentil 75 (P75):", perzentile_v4_1[2], "\n")
+```
+
+**Erklärung**: Identisch zu Aufgabe 1 Schritt 3
+
+```{r}
+hist(v4_1, 
+     breaks = 10,      # Anzahl der Klassen (kann angepasst werden)
+     col = "grey", 
+     main = "v4_1", 
+     xlab = "Mathematische Kompetenzen", 
+     ylab = "Häufigkeit")
+
+```
+
+**Erklärung**: Identisch zu Aufgabe 2 Schritt 1
+
+**Schritt 3**: Berechnen der wesentlichen Lage- und Streuungsparameter & Histrogramm für V4_2
+
+```{r}
+
+# Mittelwert
+mean_v4_2 <- mean(v4_2, na.rm = TRUE)
+
+# Median
+median_v4_2 <- median(v4_2, na.rm = TRUE)
+
+# Modus (häufigster Wert)
+modus_v4_2 <- as.numeric(names(sort(table(v4_2), decreasing = TRUE)[1]))
+
+# Varianz
+varianz_v4_2 <- var(v4_2, na.rm = TRUE)
+
+# Standardabweichung
+sd_v4_2 <- sd(v4_2, na.rm = TRUE)
+
+# Schiefe
+schiefe_v4_2 <- skewness(v4_2, na.rm = TRUE)
+
+# Spannweite
+spannweite_v4_2 <- range(v4_2, na.rm = TRUE)
+min_v4_2 <- spannweite_v4_2[1]
+max_v4_2 <- spannweite_v4_2[2]
+
+# Perzentile P25 und P75
+perzentile_v4_2 <- quantile(v4_2, probs = c(0.25, 0.75), na.rm = TRUE)
+```
+
+```{r}
+
+cat("Mittelwert:", mean_v4_2, "\n")
+cat("Median:", median_v4_2, "\n")
+cat("Modus:", modus_v4_2, "\n")
+cat("Varianz:", varianz_v4_2, "\n")
+cat("Standardabweichung:", sd_v4_2, "\n")
+cat("Schiefe:", schiefe_v4_2, "\n")
+cat("Minimum:", min_v4_2, "\n")
+cat("Maximum:", max_v4_2, "\n")
+cat("Spannweite:", max_v4_2 - min_v4_2, "\n")
+cat("Perzentil 25 (P25):", perzentile_v4_2[1], "\n")
+cat("Perzentil 75 (P75):", perzentile_v4_2[2], "\n")
+```
+
+```{r}
+hist(v4_2, 
+     breaks = 10,      # Anzahl der Klassen (kann angepasst werden)
+     col = "grey", 
+     main = "v4_1", 
+     xlab = "Sprachliche Kompetenzen", 
+     ylab = "Häufigkeit")
+
+```
+
+## Aufgabe 4
+
+a\. Stellen Sie wesentliche Lage- und Streuungsparameter für die Variable V15 (Fahrtzeit zwischen Wohnort und Uni in Minuten) mittels eines Boxplot-Diagramms graphisch dar.
+
+b\. Erläutern Sie das Diagramm anhand von Aussagen (jeweils ein Satz) zu:
+
+-   Spannweite
+
+-   Minimal- und Maximalwert
+
+-   Median
+
+-   Perzentile P25 und P75
+
+-   Ausreißer und Extremwerte
+
+### Lösung
+
+**Schritt 1**: Boxplot der V15 Variable
+
+```{r}
+
+# Boxplot erstellen
+boxplot(v15,
+        main = "Fahrtzeit zwischen Wohnort und Uni (V15)",
+        ylab = "Minuten",
+        col = "grey")
+
+
+```
+
+**Erklärung**: Die `boxplot` Funktion generiert einen Boxplot und Erwartet einen Datensatz (V15). Zusätzlich können die folgendne sachen spezifiziert werden:
+
+-   main = "Fahrtzeit zwischen Wohnort und Uni (V15)" -\> Titel
+
+-   ylab = "Minuten" -\> Y Achsen Beschriftung
+
+-   col = "grey" -\> Farbe spezifizieren
+
+**Schritt 2**: Beschreibung des Boxplots
+
+-   **Spannweite (Range):**\
+    Die Spannweite ergibt sich aus der Differenz zwischen dem größten und kleinsten Wert der Fahrtzeit und zeigt, wie weit die Werte insgesamt streuen.
+
+-   **Minimal- und Maximalwert:**\
+    Der kleinste und größte beobachtete Wert (ohne Ausreißer) markieren das untere und obere Ende der Boxplot-"Whisker".
+
+-   **Median:**\
+    Der Median (Zentralwert) teilt die Verteilung der Fahrtzeiten in zwei Hälften und liegt als waagrechter Strich innerhalb der Box.
+
+-   **Perzentile P25 und P75 (Quartile):**\
+    Das 25. Perzentil (P25) markiert den unteren Rand der Box, das 75. Perzentil (P75) den oberen – sie zeigen, wo sich die mittleren 50 % der Daten befinden.
+
+-   **Ausreißer und Extremwerte:**\
+    Punkte, die außerhalb des 1,5-fachen Interquartilsabstands vom Boxbereich liegen, gelten als Ausreißer und werden als einzelne Punkte außerhalb der „Whisker“ dargestellt.
+
+## Aufgabe 5
+
+a\. Erstellen Sie in einer Graphik für die Variable V15 (Fahrtzeit zwischen Wohnort und Uni in Minuten) jeweils einen Boxplot für männliche und weibliche Befragte.
+
+b\. Untersuchen Sie anhand der Graphik, ob es Unterschiede in der Fahrtzeit zwischen männlichen und weiblichen Befragten gibt.
+
+### Lösung
+
+```{r}
+qq <- data %>%
+  select(V15,V22)
+```
+
+**Erklärung**: er Befehl `qq <- data %>% select(V15, V22)` verwendet das Pipe-Prinzip aus dem `dplyr`-Paket, um eine gezielte Auswahl von Variablen aus einem bestehenden `data frame` vorzunehmen. Der `data frame` `data` enthält dabei mehrere Variablen (Spalten), von denen mit `select()` nur die Variablen `V15` und `V22` extrahiert werden. Das Ergebnis ist ein neuer `data frame` mit dem Namen `qq`, der ausschließlich diese beiden Spalten enthält.
+
+```{r}
+
+boxplot(V15 ~ V22,
+        data = data,
+        main = "Fahrtzeit zur Uni nach Geschlecht",
+        xlab = "Geschlecht",
+        ylab = "Fahrtzeit (Minuten)",
+        col = c("lightblue", "pink"),
+        names = c("Männlich", "Weiblich"))
+
+```
+
+**Erklärung**: Der Befehl `boxplot(V15 ~ V22, ...)` erzeugt ein **Boxplot-Diagramm** zur Visualisierung der Verteilung einer metrischen Variable (`V15`) in Abhängigkeit von einer Gruppenvariable (`V22`). In diesem Fall wird `V15` (vermutlich die Fahrtzeit zur Universität in Minuten) nach Geschlecht (`V22`) gruppiert dargestellt. Die Tilde-Schreibweise (`~`) ist typisch für R und bedeutet in diesem Kontext: *"zeichne V15 in Abhängigkeit von V22"*.
+
+## Aufgabe 6
+
+a\. Stellen Sie nun die folgenden Lage- und Streuungsparameter der Variable V15 (Fahrtzeit zwischen Wohnort und Uni in Minuten) von männlichen und weiblichen Befragten gegenüber:
+
+-   Mittelwert
+
+-   Median
+
+-   Modus
+
+-   Standardabweichung
+
+-   Schiefe
+
+-   Minimal- und Maximalwert
+
+-   Perzentile P25 und P75
+
+b\. Was sind die auffälligsten Unterschiede?
+
+### Lösung
+
+**Schritt 1**: Daten transformieren:
+
+```{r}
+maennlich <- subset(qq, V22 == 1)
+weiblich <- subset(qq, V22 == 2)
+```
+
+**Erklärung**: Mit `subset(qq, V22 == 1)` wird ein neuer `data frame` namens `maennlich` erstellt, der nur jene Beobachtungen enthält, bei denen in der Variable `V22` der Wert **1** steht – also alle männlichen Befragten (sofern 1 für „männlich“ codiert ist). Analog dazu erzeugt `subset(qq, V22 == 2)` den `data frame` `weiblich`, der nur die Daten der weiblichen Befragten enthält (bei `V22 == 2`).
+
+**Schritt 2**: Lage- und Streuungsparameter berechnen:
+
+```{r}
+
+kennwerte <- function(x) {
+  list(
+    Mittelwert = mean(x, na.rm = TRUE),
+    Median = median(x, na.rm = TRUE),
+    Modus = mfv(x, na_rm = TRUE),
+    Standardabweichung = sd(x, na.rm = TRUE),
+    Schiefe = skewness(x, na.rm = TRUE),
+    Minimum = min(x, na.rm = TRUE),
+    Maximum = max(x, na.rm = TRUE),
+    P25 = quantile(x, 0.25, na.rm = TRUE),
+    P75 = quantile(x, 0.75, na.rm = TRUE)
+  )
+}
+
+# Werte berechnen
+kenn_maennlich <- kennwerte(maennlich$V15)
+kenn_weiblich <- kennwerte(weiblich$V15)
+
+# Ausgabe
+kenn_maennlich
+kenn_weiblich
+
+# Beide Kennwerte in eine Matrix
+kenn_matrix <- rbind(kenn_maennlich, kenn_weiblich)
+
+kenn_df <- kenn_matrix
+
+```
+
+**Erklärung**: Der Befehl `kennwerte <- function(x) { ... }` definiert eine **eigene Funktion** mit dem Namen `kennwerte`, die eine Reihe von **deskriptivstatistischen Kennzahlen** für eine übergebene numerische Variable berechnet. Die Funktion erwartet als Eingabe ein numerisches Vektorobjekt (z. B. eine einzelne Spalte eines `data frame`) und gibt als Ergebnis eine **Liste** mit mehreren statistischen Werten zurück.
+
+## Aufgabe 7
+
+Berechnen Sie das Alter der befragten Studierenden. Befolgen Sie dazu folgende Arbeitsschritte:
+
+a\. Erstellen Sie eine neue Variable mit dem heutigen Datum \[Datum\].
+
+b\. Kontrollieren Sie, ob die Variable \[Datum\] die gleichen Variableneigenschaften besitzt wie die Variable V21 (Geburtsdatum).
+
+c\. Berechnen Sie die Variable \[Alter\]
+
+d\. Schließen Sie Probanden älter 30 Jahre von den weiteren Analysen aus.
+
+e\. Erstellen Sie anschließend ein Histogramm der Variable Alter.
+
+f\. Berechnen Sie Lage- und Streuungsparameter zur Variable Alter.
+
+g\. Berechnen Sie Lage- und Streuungsparameter zur Variable Alter getrennt nach männlichen und weiblichen Befragten und visualisieren Sie die Ergebnisse in einem Boxplot-Diagramm.
+
+### Lösung
+
+```{r}
+
+data$Datum <- Sys.Date()
+
+```
+
+**Erklärung**: Der Befehl `data$Datum <- Sys.Date()` fügt dem bestehenden `data frame` `data` eine **neue Spalte** mit dem Namen `Datum` hinzu. In dieser Spalte wird für jede Zeile das **aktuelle Datum** gespeichert.
+
+```{r}
+
+identical(class(data$Datum), class(data$V21))
+```
+
+**Erklärung**: Der Befehl `identical(class(data$Datum), class(data$V21))` prüft, ob die **Datenklassen (Datentypen)** der beiden Variablen `Datum` und `V21` im `data frame` `data` **identisch** sind.
+
+```{r}
+
+data$Alter <- interval(data$V21, data$Datum) / years(1)
+data$Alter <- floor(data$Alter)
+
+
+```
+
+**Erklärung**: Zuerst wird das **Zeitintervall** zwischen dem Geburtsdatum (`V21`) und dem aktuellen Datum (`Datum`) in **Jahren** umgerechnet. Das Ergebnis wird in der neuen Spalte `Alter` gespeichert. Der zweite Befehl rundet das Alter mit `floor()` auf die **nächste ganze Zahl** ab, sodass nur das vollendete Alter angezeigt wird.
+
+```{r}
+data_jung <- subset(data, Alter <= 30)
+```
+
+**Erklärung**: filtern den `data frame` `data` und erstellen eine neue Variable `data_jung`, die nur die Daten der Befragten enthält, deren **Alter** 30 Jahre oder jünger ist (d. h. `Alter <= 30`).\
+
+```{r}
+
+hist(data_jung$Alter,
+     main = "Histogramm: Alter der Befragten (≤ 30 Jahre)",
+     xlab = "Alter (in Jahren)",
+     ylab = "Anzahl",
+     col = "lightblue",
+     breaks = 10)
+
+skewness(data_jung$Alter, na.rm = TRUE)
+
+kennwerte(data_jung$Alter)
+
+```
+
+-   **Erklärung**: `hist()` erstellt das Histogramm der `Alter`-Daten aus `data_jung`.
+
+-   Der **Titel** (`main`), die **x-Achse** (`xlab`) und die **y-Achse** (`ylab`) werden benannt.
+
+-   `col = "lightblue"` färbt die Balken des Histogramms in Hellblau.
+
+-   `breaks = 10` legt die Anzahl der **Balken** im Histogramm auf 10 fest.
+
+-   Die Funktion `skewness(data_jung$Alter, na.rm = TRUE)` berechnet die **Schiefe** (Asymmetrie) der Altersverteilung für die gefilterte Gruppe (`Alter ≤ 30`). Eine Schiefe zeigt an, ob die Verteilung der Altersdaten eher nach rechts oder links geneigt ist.
+
+```{r}
+jung_maennlich <- subset(data_jung, V22 == 1)
+jung_weiblich <- subset(data_jung, V22 == 2)
+```
+
+**Erklärung**: Der Befehl berechnet diese Kennwerte für das Alter der männlichen und weiblichen Befragten, die jeweils in `jung_maennlich$Alter` und `jung_weiblich$Alter` gespeichert sind.\
+
+```{r}
+kennwerte <- function(x) {
+  list(
+    Mittelwert = mean(x, na.rm = TRUE),
+    Median = median(x, na.rm = TRUE),
+    Standardabweichung = sd(x, na.rm = TRUE),
+    Minimum = min(x, na.rm = TRUE),
+    Maximum = max(x, na.rm = TRUE),
+    P25 = quantile(x, 0.25, na.rm = TRUE),
+    P75 = quantile(x, 0.75, na.rm = TRUE),
+    Schiefe = skewness(x, na.rm = TRUE)
+  )
+}
+```
+
+**Erklärung**: Die Funktion `kennwerte()` wird verwendet, um deskriptive **Kennwerte** für das Alter zu berechnen. Diese Funktion gibt den **Mittelwert**, **Median**, **Standardabweichung**, **Minimum**, **Maximum**, **25. und 75. Perzentil** sowie die **Schiefe** der Verteilung zurück:\
+
+```{r}
+
+kennwerte(jung_maennlich$Alter)
+kennwerte(jung_weiblich$Alter)
+```
+
+**Erklärung**: Der Befehl berechnet diese Kennwerte für das Alter der männlichen und weiblichen Befragten, die jeweils in `jung_maennlich$Alter` und `jung_weiblich$Alter` gespeichert sind.
+
+```{r}
+
+boxplot(Alter ~ V22,
+        data = data_jung,
+        main = "Boxplot: Alter nach Geschlecht (≤ 30 Jahre)",
+        xlab = "Geschlecht",
+        ylab = "Alter in Jahren",
+        col = c("lightblue", "pink"),
+        names = c("Männlich", "Weiblich"))
+
+
+```
+
+-   **Erklärung**: Der Boxplot zeigt das Alter (`Alter`) nach Geschlecht (`V22`) für die jungen Befragten (`data_jung`).
+
+-   `col = c("lightblue", "pink")` weist den Geschlechtern jeweils eine Farbe zu: Hellblau für Männer und Rosa für Frauen.
+
+-   Der Titel und die Achsenbeschriftungen werden entsprechend festgelegt.
